@@ -1,0 +1,5 @@
+package com.infaqapp.app;
+
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {}

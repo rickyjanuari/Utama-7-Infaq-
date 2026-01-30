@@ -1,0 +1,7 @@
+{
+    "framework": "sveltekit",
+    "buildCommand": "cd frontend && npm run build",
+    "outputDirectory": "frontend/.svelte-kit/output",
+    "installCommand": "cd frontend && npm install",
+    "devCommand": "cd frontend && npm run dev"
+}
