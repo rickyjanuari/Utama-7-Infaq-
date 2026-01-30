@@ -1,7 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+// Environment variables - Vite injects these at build time
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string || '';
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string || '';
+
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
 export type Role = 'admin' | 'guru' | 'kepala_sekolah';
 
