@@ -1,8 +1,9 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { env } from '$env/dynamic/public';
 
-// Environment variables - Vite injects these at build time
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string || '';
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string || '';
+// Environment variables - loaded at runtime
+const supabaseUrl = env.PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = env.PUBLIC_SUPABASE_ANON_KEY || '';
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
