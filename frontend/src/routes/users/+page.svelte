@@ -224,8 +224,10 @@
 {/if}
 
 {#if showForm}
-	<div class="modal-overlay" on:click={closeForm} on:keydown={(e) => e.key === 'Escape' && closeForm()}>
-		<div class="modal" on:click|stopPropagation>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="modal-overlay" on:click={closeForm} on:keydown={(e) => e.key === 'Escape' && closeForm()} role="button" tabindex="0">
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true">
 			<h2 class="modal-title">{editingUser ? 'Edit User' : 'Tambah User'}</h2>
 			
 			<form on:submit|preventDefault={handleSubmit}>
