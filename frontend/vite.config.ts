@@ -78,5 +78,6 @@ export default defineConfig({
     ],
     server: {
         port: 3000
-    }
+    },
+    envPrefix: ['VITE_', 'PUBLIC_']
 });
