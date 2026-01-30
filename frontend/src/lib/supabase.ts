@@ -1,11 +1,29 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/public';
 
-// Environment variables - loaded at runtime
-const supabaseUrl = env.PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = env.PUBLIC_SUPABASE_ANON_KEY || '';
+// Lazy initialization - create client only when first accessed
+let _supabase: SupabaseClient | null = null;
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+export function getSupabase(): SupabaseClient {
+    if (!_supabase) {
+        const supabaseUrl = env.PUBLIC_SUPABASE_URL || '';
+        const supabaseAnonKey = env.PUBLIC_SUPABASE_ANON_KEY || '';
+
+        if (!supabaseUrl || !supabaseAnonKey) {
+            console.error('Supabase env vars missing:', { supabaseUrl: !!supabaseUrl, supabaseAnonKey: !!supabaseAnonKey });
+        }
+
+        _supabase = createClient(supabaseUrl, supabaseAnonKey);
+    }
+    return _supabase;
+}
+
+// For backward compatibility - getter that lazily initializes
+export const supabase = new Proxy({} as SupabaseClient, {
+    get(_, prop) {
+        return Reflect.get(getSupabase(), prop);
+    }
+});
 
 export type Role = 'admin' | 'guru' | 'kepala_sekolah';
 
