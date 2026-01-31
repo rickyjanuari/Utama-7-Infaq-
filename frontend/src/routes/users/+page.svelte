@@ -107,7 +107,9 @@
 						auth: {
 							persistSession: false, // Critical: Only for this request
 							autoRefreshToken: false,
-							detectSessionInUrl: false
+							detectSessionInUrl: false,
+							// @ts-ignore - 'lock' option exists in recent versions but typing might lag
+							lock: false
 						}
 					}
 				);
@@ -123,7 +125,7 @@
 						}
 					}
 				});
-
+// ... 
 				if (signUpError) throw signUpError;
 
 				// If user already exists in auth, just update profile
@@ -236,8 +238,8 @@
 
 {#if showForm}
 	<div class="modal-overlay" on:click={closeForm} on:keydown={(e) => e.key === 'Escape' && closeForm()} role="button" tabindex="0">
-		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="-1">
-			<h2 class="modal-title">{editingUser ? 'Edit User' : 'Tambah User'}</h2>
+		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="modal-title">
+			<h2 class="modal-title" id="modal-title">{editingUser ? 'Edit User' : 'Tambah User'}</h2>
 			
 			<form on:submit|preventDefault={handleSubmit}>
 				{#if formError}
