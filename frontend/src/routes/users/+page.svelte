@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { supabase, type Profile } from '$lib/supabase';
+	import { createClient } from '@supabase/supabase-js';
+	import { supabase, type Profile, getSupabaseConfig } from '$lib/supabase';
 	import { onMount } from 'svelte';
 
 	let users: Profile[] = [];
@@ -97,9 +98,21 @@
 
 				if (updateError) throw updateError;
 			} else {
-				// Create new user via Supabase Admin API
-				// Note: This requires service role key, so we do it via edge function or manually
-				const { data: authData, error: signUpError } = await supabase.auth.signUp({
+				// Create new user via a TEMPORARY client to avoid logging out the admin
+				const config = getSupabaseConfig();
+				const tempSupabase = createClient(
+					config.url,
+					config.key,
+					{
+						auth: {
+							persistSession: false, // Critical: Only for this request
+							autoRefreshToken: false,
+							detectSessionInUrl: false
+						}
+					}
+				);
+
+				const { data: authData, error: signUpError } = await tempSupabase.auth.signUp({
 					email,
 					password,
 					options: {
@@ -115,9 +128,7 @@
 
 				// If user already exists in auth, just update profile
 				if (authData.user && !authData.session) {
-					formError = 'User dengan email ini sudah terdaftar';
-					formLoading = false;
-					return;
+					// Check if email confirmation is required
 				}
 			}
 			
@@ -224,10 +235,8 @@
 {/if}
 
 {#if showForm}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="modal-overlay" on:click={closeForm} on:keydown={(e) => e.key === 'Escape' && closeForm()} role="button" tabindex="0">
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true">
+		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="-1">
 			<h2 class="modal-title">{editingUser ? 'Edit User' : 'Tambah User'}</h2>
 			
 			<form on:submit|preventDefault={handleSubmit}>

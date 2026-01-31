@@ -71,13 +71,16 @@
 		success = '';
 
 		try {
+			// Declare variables outside the if block so they are accessible later
+			let mainData, insertData;
+
 			if (type === 'infaq_masuk' && penyisihanNum > 0) {
 				// Infaq dengan penyisihan: buat 2 transaksi
 				const mainAmount = amountNum - penyisihanNum;
 
 				// 1. Transaksi utama (yang tampil di laporan umum)
 				if (mainAmount > 0) {
-					const { data: mainData, error: mainError } = await supabase
+					const { data, error: mainError } = await supabase
 						.from('transactions')
 						.insert({
 							user_id: $auth.user?.id,
@@ -91,6 +94,7 @@
 						.select()
 						.single();
 					if (mainError) throw mainError;
+					mainData = data;
 					
 					if (mainData) {
 						syncToGoogleSheets('INSERT', {
@@ -126,7 +130,7 @@
 				success = `Infaq Rp ${formatNumber(amountNum)} berhasil! (Penyisihan: Rp ${formatNumber(penyisihanNum)})`;
 			} else {
 				// Transaksi biasa (pengeluaran atau infaq tanpa penyisihan)
-				const { data: insertData, error: insertError } = await supabase
+				const { data, error: insertError } = await supabase
 					.from('transactions')
 					.insert({
 						user_id: $auth.user?.id,
@@ -141,6 +145,7 @@
 					.single();
 
 				if (insertError) throw insertError;
+				insertData = data;
 				
 				if (insertData) {
 					syncToGoogleSheets('INSERT', {
@@ -211,7 +216,7 @@
 				scale: 2,
 				backgroundColor: '#ffffff',
 				useCORS: true // for logo if needed
-			});
+			} as any);
 			
 			return new Promise(resolve => {
 				canvas.toBlob(blob => resolve(blob), 'image/png');

@@ -178,7 +178,7 @@
 				scale: 2,
 				backgroundColor: '#ffffff',
 				useCORS: true
-			});
+			} as any);
 			
 			return new Promise(resolve => {
 				canvas.toBlob(blob => resolve(blob), 'image/png');
@@ -610,8 +610,8 @@
 
 <!-- Receipt Modal -->
 {#if showReceiptModal && receiptTx}
-	<div class="modal-overlay" on:click={closeReceiptModal} on:keydown={(e) => e.key === 'Escape' && closeReceiptModal()}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-overlay" on:click={closeReceiptModal} on:keydown={(e) => e.key === 'Escape' && closeReceiptModal()} role="button" tabindex="0">
+		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true">
 			<div style="margin-bottom: 1.5rem;" id="history-receipt-card">
 				<ReceiptCard transaction={receiptTx} recorderName={receiptTx.user_name || ''} />
 			</div>

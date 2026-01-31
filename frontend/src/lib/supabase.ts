@@ -18,6 +18,13 @@ export function getSupabase(): SupabaseClient {
     return _supabase;
 }
 
+export function getSupabaseConfig() {
+    return {
+        url: env.PUBLIC_SUPABASE_URL,
+        key: env.PUBLIC_SUPABASE_ANON_KEY
+    };
+}
+
 // For backward compatibility - getter that lazily initializes
 export const supabase = new Proxy({} as SupabaseClient, {
     get(_, prop) {

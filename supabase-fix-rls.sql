@@ -19,6 +19,17 @@ DROP POLICY IF EXISTS "Admin can update all transactions" ON transactions;
 DROP POLICY IF EXISTS "Guru can update all transactions" ON transactions;
 DROP POLICY IF EXISTS "Admin and Guru can update transactions" ON transactions;
 DROP POLICY IF EXISTS "Admin and Guru can delete transactions" ON transactions;
+DROP POLICY IF EXISTS "Admin and Guru can insert transactions" ON transactions;
+
+-- 4. Buat policy untuk INSERT - Admin & Guru bisa insert
+CREATE POLICY "Admin and Guru can insert transactions" ON transactions
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND (profiles.role = 'admin' OR profiles.role = 'guru')
+  )
+);
 
 -- 4. Buat policy untuk UPDATE - Admin & Guru bisa update semua
 CREATE POLICY "Admin and Guru can update transactions" ON transactions

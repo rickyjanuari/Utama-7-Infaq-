@@ -346,8 +346,8 @@
 
 <!-- Edit Modal -->
 {#if showEditModal && editingTx}
-	<div class="modal-overlay" on:click={closeEditModal} on:keydown={(e) => e.key === 'Escape' && closeEditModal()}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-overlay" on:click={closeEditModal} on:keydown={(e) => e.key === 'Escape' && closeEditModal()} role="button" tabindex="0">
+		<div class="modal" on:click|stopPropagation role="dialog" aria-modal="true">
 			<h2 class="modal-title">Edit Penyisihan</h2>
 			
 			<form on:submit|preventDefault={handleEdit}>

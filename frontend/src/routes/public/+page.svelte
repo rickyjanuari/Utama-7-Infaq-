@@ -35,7 +35,9 @@
 
 			if (txError) throw txError;
 
-			transactions = txData || [];
+			// We cast to any[] first then Transaction[] because we don't fetch all fields
+			// but we know it's safe for display purposes here
+			transactions = (txData as any[]) || [];
 		} catch (e: unknown) {
 			const err = e as { message?: string };
 			error = err.message || 'Failed to load data';
