@@ -149,6 +149,46 @@
 		}
 	}
 
+	// Quick date filters
+	let activeQuickFilter = '';
+
+	function setQuickFilter(filter: string) {
+		const today = new Date();
+		const yyyy = today.getFullYear();
+		const mm = String(today.getMonth() + 1).padStart(2, '0');
+		const dd = String(today.getDate()).padStart(2, '0');
+		const todayStr = `${yyyy}-${mm}-${dd}`;
+
+		activeQuickFilter = filter;
+
+		switch (filter) {
+			case 'today':
+				startDate = todayStr;
+				endDate = todayStr;
+				break;
+			case 'week':
+				const weekAgo = new Date(today);
+				weekAgo.setDate(today.getDate() - 7);
+				startDate = `${weekAgo.getFullYear()}-${String(weekAgo.getMonth() + 1).padStart(2, '0')}-${String(weekAgo.getDate()).padStart(2, '0')}`;
+				endDate = todayStr;
+				break;
+			case 'month':
+				startDate = `${yyyy}-${mm}-01`;
+				endDate = todayStr;
+				break;
+			case '3months':
+				const threeMonthsAgo = new Date(today);
+				threeMonthsAgo.setMonth(today.getMonth() - 3);
+				startDate = `${threeMonthsAgo.getFullYear()}-${String(threeMonthsAgo.getMonth() + 1).padStart(2, '0')}-${String(threeMonthsAgo.getDate()).padStart(2, '0')}`;
+				endDate = todayStr;
+				break;
+			case 'all':
+				startDate = '';
+				endDate = '';
+				break;
+		}
+	}
+
 	// Chart Data
 	$: chartData = {
 		labels: monthlyReport.map(m => formatMonth(m.month)).reverse(),
@@ -470,21 +510,29 @@
 
 <!-- Filters -->
 <div class="filters card">
-	<div class="filter-group">
-		<label class="filter-label">Tanggal Awal</label>
-		<input type="date" class="form-input" bind:value={startDate} />
+	<div class="quick-filters">
+		<button class="quick-filter-btn" class:active={activeQuickFilter === 'all' || activeQuickFilter === ''} on:click={() => setQuickFilter('all')}>Semua</button>
+		<button class="quick-filter-btn" class:active={activeQuickFilter === 'today'} on:click={() => setQuickFilter('today')}>Hari ini</button>
+		<button class="quick-filter-btn" class:active={activeQuickFilter === 'week'} on:click={() => setQuickFilter('week')}>Minggu</button>
+		<button class="quick-filter-btn" class:active={activeQuickFilter === 'month'} on:click={() => setQuickFilter('month')}>Bulan</button>
+		<button class="quick-filter-btn" class:active={activeQuickFilter === '3months'} on:click={() => setQuickFilter('3months')}>3 Bulan</button>
 	</div>
-	<div class="filter-group">
-		<label class="filter-label">Tanggal Akhir</label>
-		<input type="date" class="form-input" bind:value={endDate} />
-	</div>
-	<div class="filter-actions">
-		<button class="btn btn-primary" on:click={exportPDF} style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 0.5rem;">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-			</svg>
-			Export PDF
-		</button>
+	<div class="filter-row">
+		<div class="filter-group">
+			<label class="filter-label">Dari</label>
+			<input type="date" class="form-input" bind:value={startDate} on:change={() => activeQuickFilter = ''} />
+		</div>
+		<div class="filter-group">
+			<label class="filter-label">Sampai</label>
+			<input type="date" class="form-input" bind:value={endDate} on:change={() => activeQuickFilter = ''} />
+		</div>
+		<div class="filter-actions">
+			<button class="btn btn-primary" on:click={exportPDF} title="Export PDF">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+				</svg>
+			</button>
+		</div>
 	</div>
 </div>
 
@@ -536,7 +584,7 @@
 						{/if}
 						<div class="transaction-date">{formatDate(tx.transaction_date)} • {tx.user_name}</div>
 					</div>
-					<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+					<div class="transaction-right">
 						<div class="transaction-amount" class:income={tx.type === 'infaq_masuk'} class:expense={tx.type === 'pengeluaran'}>
 							{tx.type === 'infaq_masuk' ? '+' : '-'}{formatCurrency(tx.amount)}
 						</div>
@@ -790,21 +838,32 @@
 
 	.tabs {
 		display: flex;
-		gap: 0.5rem;
+		gap: 0.375rem;
 		margin-bottom: 1rem;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	.tabs::-webkit-scrollbar {
+		display: none;
 	}
 
 	.tab {
 		flex: 1;
-		padding: 0.625rem;
+		min-width: max-content;
+		padding: 0.625rem 0.75rem;
 		border: 2px solid var(--border);
 		border-radius: var(--radius-md);
 		background: var(--bg-card);
 		color: var(--text-secondary);
-		font-size: 0.875rem;
+		font-size: 0.8125rem;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all var(--transition-normal);
+		text-align: center;
+		white-space: nowrap;
 	}
 
 	.tab.active {
@@ -886,10 +945,55 @@
 
 	/* Filters */
 	.filters {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
+		display: flex;
+		flex-direction: column;
 		gap: 0.75rem;
 		margin-bottom: 1rem;
+	}
+
+	.quick-filters {
+		display: flex;
+		gap: 0.5rem;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		padding-bottom: 0.25rem;
+	}
+
+	.quick-filters::-webkit-scrollbar {
+		display: none;
+	}
+
+	.quick-filter-btn {
+		flex-shrink: 0;
+		padding: 0.5rem 0.875rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--bg-tertiary);
+		color: var(--text-secondary);
+		font-size: 0.75rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.quick-filter-btn:hover {
+		border-color: var(--primary);
+		color: var(--primary);
+	}
+
+	.quick-filter-btn.active {
+		background: var(--primary);
+		border-color: var(--primary);
+		color: white;
+	}
+
+	.filters .filter-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr auto;
+		gap: 0.5rem;
 		align-items: end;
 	}
 
@@ -897,28 +1001,27 @@
 		width: 100%;
 	}
 
+	.filter-group .form-input {
+		font-size: 0.8125rem;
+		padding: 0.5rem 0.625rem;
+	}
+
 	.filter-label {
 		display: block;
-		font-size: 0.75rem;
+		font-size: 0.625rem;
 		font-weight: 600;
-		color: var(--text-secondary);
-		margin-bottom: 0.375rem;
+		color: var(--text-muted);
+		margin-bottom: 0.25rem;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
 	}
 
 	.filter-actions {
-		grid-column: 1 / -1;
 		display: flex;
-		justify-content: flex-end;
 	}
 
-	@media (min-width: 480px) {
-		.filters {
-			grid-template-columns: 1fr 1fr auto;
-		}
-		
-		.filter-actions {
-			grid-column: auto;
-		}
+	.filter-actions .btn {
+		padding: 0.5rem 0.75rem;
 	}
 
 	.category-badge {

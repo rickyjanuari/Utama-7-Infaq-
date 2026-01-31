@@ -330,7 +330,7 @@
 						</div>
 						<div class="transaction-date">{formatDate(tx.transaction_date)} • {tx.user_name}</div>
 					</div>
-					<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+					<div class="transaction-right">
 						<div class="transaction-amount" class:income={tx.type === 'infaq_masuk'} class:expense={tx.type === 'pengeluaran'}>
 							{tx.type === 'infaq_masuk' ? '+' : '-'}{formatCurrency(tx.amount)}
 						</div>
