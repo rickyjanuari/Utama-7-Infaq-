@@ -24,6 +24,7 @@
 
 	const categories = [
 		{ value: 'umum', label: 'Umum' },
+		{ value: 'infaq_maulid', label: 'Infaq Maulid' },
 		{ value: 'gaji', label: 'Gaji/Honor' },
 		{ value: 'listrik', label: 'Listrik/Air' },
 		{ value: 'operasional', label: 'Operasional' },

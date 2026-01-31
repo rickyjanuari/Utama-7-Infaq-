@@ -36,6 +36,7 @@
 	const categories = [
 		{ value: 'umum', label: 'Umum' },
 		{ value: 'infaq_jumat', label: "Infaq Jum'at" },
+		{ value: 'infaq_maulid', label: 'Infaq Maulid' },
 		{ value: 'santunan', label: 'Santunan' },
 		{ value: 'infaq_baznas', label: 'Infaq Baznas' },
 		{ value: 'taziyah', label: 'Taziyah' },
