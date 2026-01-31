@@ -37,7 +37,13 @@
 
 			// We cast to any[] first then Transaction[] because we don't fetch all fields
 			// but we know it's safe for display purposes here
-			transactions = (txData as any[]) || [];
+			// Ensure strict sorting client-side as well
+			transactions = ((txData as any[]) || []).sort((a, b) => {
+				const dateA = new Date(a.transaction_date).getTime();
+				const dateB = new Date(b.transaction_date).getTime();
+				if (dateB !== dateA) return dateB - dateA;
+				return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+			});
 		} catch (e: unknown) {
 			const err = e as { message?: string };
 			error = err.message || 'Failed to load data';

@@ -55,6 +55,7 @@ export interface Transaction {
     transaction_date: string;
     is_penyisihan: boolean;
     created_at: string;
+    metadata?: any;
 }
 
 export interface TransactionSummary {

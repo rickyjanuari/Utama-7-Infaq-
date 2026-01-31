@@ -18,13 +18,24 @@
 	let loading = false;
 	let error = '';
 	let success = '';
-	
+	// Santunan metadata
+	let studentName = '';
+	let studentClass = '';
+	let parentRep = '';
+
 	// Success Modal State
 	let showSuccessModal = false;
 	let lastTransaction: Transaction | null = null;
 
 	const categories = [
 		{ value: 'umum', label: 'Umum' },
+		{ value: 'infaq_jumat', label: "Infaq Jum'at" },
+		{ value: 'santunan', label: 'Santunan' },
+		{ value: 'infaq_baznas', label: 'Infaq Baznas' },
+		{ value: 'taziyah', label: 'Taziyah' },
+		{ value: 'pembelian', label: 'Pembelian' },
+		{ value: 'donasi', label: 'Donasi' },
+		{ value: 'jenguk', label: 'Jenguk' },
 		{ value: 'gaji', label: 'Gaji/Honor' },
 		{ value: 'listrik', label: 'Listrik/Air' },
 		{ value: 'operasional', label: 'Operasional' },
@@ -89,7 +100,8 @@
 							description: description || 'Infaq Masuk',
 							transaction_date: transactionDate,
 							category,
-							is_penyisihan: false
+							is_penyisihan: false,
+							metadata: category === 'santunan' ? { student_name: studentName, student_class: studentClass, parent_rep: parentRep } : {}
 						})
 						.select()
 						.single();
@@ -114,7 +126,8 @@
 						description: `Penyisihan: ${description || 'Infaq'}`,
 						transaction_date: transactionDate,
 						category,
-						is_penyisihan: true
+						is_penyisihan: true,
+						metadata: category === 'santunan' ? { student_name: studentName, student_class: studentClass, parent_rep: parentRep } : {}
 					})
 					.select()
 					.single();
@@ -139,7 +152,8 @@
 						description,
 						transaction_date: transactionDate,
 						category,
-						is_penyisihan: type === 'pengeluaran' ? isPenyisihanExpense : false
+						is_penyisihan: type === 'pengeluaran' ? isPenyisihanExpense : false,
+						metadata: category === 'santunan' ? { student_name: studentName, student_class: studentClass, parent_rep: parentRep } : {}
 					})
 					.select()
 					.single();
@@ -166,6 +180,9 @@
 			description = '';
 			category = 'umum';
 			isPenyisihanExpense = false;
+			studentName = '';
+			studentClass = '';
+			parentRep = '';
 			
 			// Show success modal instead of redirecting
 			showSuccessModal = true;
@@ -437,6 +454,48 @@
 			{/each}
 		</select>
 	</div>
+
+	{#if category === 'santunan'}
+		<div class="card" style="background: var(--bg-tertiary); margin-bottom: 1.5rem; border: 1px solid var(--border);">
+			<h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary);">Detail Santunan</h3>
+			
+			<div class="form-group">
+				<label for="studentName" class="form-label">Nama Siswa</label>
+				<input
+					type="text"
+					id="studentName"
+					class="form-input"
+					placeholder="Nama Lengkap Siswa"
+					bind:value={studentName}
+					disabled={loading}
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="studentClass" class="form-label">Kelas</label>
+				<input
+					type="text"
+					id="studentClass"
+					class="form-input"
+					placeholder="Contoh: 7A"
+					bind:value={studentClass}
+					disabled={loading}
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="parentRep" class="form-label">Perwakilan Orang Tua</label>
+				<input
+					type="text"
+					id="parentRep"
+					class="form-input"
+					placeholder="Nama Wali / Orang Tua"
+					bind:value={parentRep}
+					disabled={loading}
+				/>
+			</div>
+		</div>
+	{/if}
 
 	<div class="form-group">
 		<label for="description" class="form-label">Keterangan</label>

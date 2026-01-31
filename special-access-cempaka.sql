@@ -3,12 +3,27 @@
 -- Menjadikan user ini ADMIN agar bisa Edit, Delete, dan Add laporan sepenuhnya.
 -- =====================================================
 
--- 1. Update user jika sudah ada
-UPDATE profiles
-SET role = 'admin'
-WHERE email = 'cempakapramudita@gmail.com';
+-- 1. Sync Profile jika Auth User sudah ada tapi Profile belum ada
+DO $$
+DECLARE
+  v_user_id uuid;
+BEGIN
+  -- Coba cari ID user di tabel auth.users
+  SELECT id INTO v_user_id FROM auth.users WHERE email = 'cempakapramudita@gmail.com';
 
--- 2. Update Trigger agar jika user ini baru daftar nanti, otomatis jadi ADMIN
+  -- Jika user ditemukan di Auth, pastikan Profile ada dan jadi Admin
+  IF v_user_id IS NOT NULL THEN
+    INSERT INTO profiles (id, email, name, role, can_view_penyisihan)
+    VALUES (v_user_id, 'cempakapramudita@gmail.com', 'Cempaka', 'admin', true)
+    ON CONFLICT (id) DO UPDATE
+    SET role = 'admin',
+        can_view_penyisihan = true;
+  END IF;
+END
+$$;
+
+-- 2. Update trigger untuk user baru (User belum daftar sama sekali)
+-- Trigger ini akan memastikan saat dia daftar nanti, otomatis jadi ADMIN
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN

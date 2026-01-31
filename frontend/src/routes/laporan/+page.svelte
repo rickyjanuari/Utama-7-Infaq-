@@ -35,6 +35,13 @@
 
 	const categories = [
 		{ value: 'umum', label: 'Umum' },
+		{ value: 'infaq_jumat', label: "Infaq Jum'at" },
+		{ value: 'santunan', label: 'Santunan' },
+		{ value: 'infaq_baznas', label: 'Infaq Baznas' },
+		{ value: 'taziyah', label: 'Taziyah' },
+		{ value: 'pembelian', label: 'Pembelian' },
+		{ value: 'donasi', label: 'Donasi' },
+		{ value: 'jenguk', label: 'Jenguk' },
 		{ value: 'gaji', label: 'Gaji/Honor' },
 		{ value: 'listrik', label: 'Listrik/Air' },
 		{ value: 'operasional', label: 'Operasional' },
@@ -75,7 +82,12 @@
 			transactions = (txData || []).map(t => ({
 				...t,
 				user_name: t.profiles?.name || 'Unknown'
-			}));
+			})).sort((a, b) => {
+				const dateA = new Date(a.transaction_date).getTime();
+				const dateB = new Date(b.transaction_date).getTime();
+				if (dateB !== dateA) return dateB - dateA;
+				return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+			});
 			
 			applyFilter(); // Initial filter
 
@@ -263,8 +275,10 @@
 		const tableData = filteredTransactions.map(t => [
 			formatDate(t.transaction_date),
 			t.type === 'infaq_masuk' ? 'Masuk' : 'Keluar',
-			t.description || '-',
-			t.category || 'Umum',
+			t.category === 'santunan' && t.metadata 
+				? `${t.description || '-'} (Siswa: ${t.metadata.student_name || '-'}, Kelas: ${t.metadata.student_class || '-'})`
+				: (t.description || '-'),
+			categories.find(c => c.value === t.category)?.label || t.category || 'Umum',
 			formatCurrency(Number(t.amount))
 		]);
 
@@ -338,7 +352,12 @@
 				t.id === editingTx!.id 
 					? { ...t, amount: amountNum, description: editDescription, transaction_date: editDate, type: editType, category: editCategory }
 					: t
-			);
+			).sort((a, b) => {
+				const dateA = new Date(a.transaction_date).getTime();
+				const dateB = new Date(b.transaction_date).getTime();
+				if (dateB !== dateA) return dateB - dateA;
+				return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+			});
 
 			closeEditModal();
 		} catch (e: unknown) {
@@ -506,9 +525,14 @@
 						<div class="transaction-desc">
 							{tx.description || (tx.type === 'infaq_masuk' ? 'Infaq Masuk' : 'Pengeluaran')}
 							{#if tx.category && tx.category !== 'umum'}
-								<span class="category-badge">{tx.category}</span>
+								<span class="category-badge">{categories.find(c => c.value === tx.category)?.label || tx.category}</span>
 							{/if}
 						</div>
+						{#if tx.metadata && tx.category === 'santunan'}
+							<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+								<span style="font-weight: 500;">Santunan:</span> {tx.metadata.student_name || '-'} ({tx.metadata.student_class || '-'}) - {tx.metadata.parent_rep || '-'}
+							</div>
+						{/if}
 						<div class="transaction-date">{formatDate(tx.transaction_date)} • {tx.user_name}</div>
 					</div>
 					<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
